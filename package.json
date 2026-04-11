@@ -1,0 +1,22 @@
+{
+  "name": "remotion-amiga-demo",
+  "version": "1.0.0",
+  "description": "Amiga demoscene animation built with Remotion",
+  "scripts": {
+    "start": "remotion studio src/index.ts",
+    "build": "remotion render src/index.ts AmigaDemo out/amiga-demo.mp4",
+    "still": "remotion still src/index.ts AmigaDemo --frame=0 out/still.png"
+  },
+  "dependencies": {
+    "@remotion/media-utils": "^4.0.448",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.3.0"
+  }
+}
