@@ -9,10 +9,21 @@ import {
 } from "remotion";
 import { BoingBall } from "../components/BoingBall";
 import { CopperBars } from "../components/CopperBars";
+import { DotTunnel } from "../components/DotTunnel";
+import { EqBars } from "../components/EqBars";
 import { Fire } from "../components/Fire";
+import { Glenz } from "../components/Glenz";
+import { HexGrid } from "../components/HexGrid";
+import { Lissajous } from "../components/Lissajous";
+import { MatrixRain } from "../components/MatrixRain";
+import { Metaballs } from "../components/Metaballs";
 import { Plasma } from "../components/Plasma";
+import { RotoShapes } from "../components/RotoShapes";
+import { Rotozoom } from "../components/Rotozoom";
 import { SineScroller } from "../components/SineScroller";
 import { Starfield } from "../components/Starfield";
+import { Twister } from "../components/Twister";
+import { VectorBalls } from "../components/VectorBalls";
 import { WireframeTunnel } from "../components/WireframeTunnel";
 import { useFrequencies } from "../hooks/useFrequencies";
 
@@ -35,6 +46,33 @@ const LAYER_BASE: React.CSSProperties = {
   imageRendering: "pixelated",
 };
 
+// Each scene: step=280, duration=300, 20-frame crossfade → env(start, start+20, start+280, start+300)
+// Scene index  start   component
+// 0               0    CopperBars
+// 1             280    Rotozoom
+// 2             560    Starfield
+// 3             840    Twister
+// 4            1120    Plasma
+// 5            1400    VectorBalls
+// 6            1680    SineScroller
+// 7            1960    DotTunnel
+// 8            2240    Lissajous
+// 9            2520    BoingBall
+// 10           2800    Metaballs
+// 11           3080    EqBars
+// 12           3360    WireframeTunnel
+// 13           3640    HexGrid
+// 14           3920    MatrixRain
+// 15           4200    RotoShapes
+// 16           4480    Glenz
+// 17           4760    Fire  (310 frames, ends at 5070)
+
+function env(frame: number, start: number): number {
+  return interpolate(frame, [start, start + 20, start + 280, start + 300], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+}
+
 interface AmigaDemoProps {
   includeAudio?: boolean;
 }
@@ -46,37 +84,29 @@ export const AmigaDemo: React.FC<AmigaDemoProps> = ({ includeAudio = false }) =>
 
   const fp = { bass: freq.bass, mid: freq.mid, treble: freq.treble, volume: freq.volume };
 
-  // ── Scene opacity envelopes (20-frame fades at each boundary) ────────────
-  // Scene 1: Copper Bars        0 – 900
-  const scene1 = interpolate(frame, [0, 20, 880, 900], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  // Scene 2: Starfield          750 – 1800
-  const scene2 = interpolate(frame, [750, 770, 1780, 1800], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  // Scene 3: Plasma             1650 – 2700
-  const scene3 = interpolate(frame, [1650, 1670, 2680, 2700], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  // Scene 4: Sine Scroller      2550 – 3600
-  const scene4 = interpolate(frame, [2550, 2570, 3580, 3600], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  // Scene 5: Boing Ball         3450 – 4350
-  const scene5 = interpolate(frame, [3450, 3470, 4330, 4350], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  // Scene 6: Wireframe Tunnel   4200 – 4800
-  const scene6 = interpolate(frame, [4200, 4220, 4780, 4800], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  // Scene 7: Fire + Outro       4650 – 5070
-  const scene7 = interpolate(frame, [4650, 4670, 5050, 5070], [0, 1, 1, 0], {
+  const s0  = env(frame, 0);
+  const s1  = env(frame, 280);
+  const s2  = env(frame, 560);
+  const s3  = env(frame, 840);
+  const s4  = env(frame, 1120);
+  const s5  = env(frame, 1400);
+  const s6  = env(frame, 1680);
+  const s7  = env(frame, 1960);
+  const s8  = env(frame, 2240);
+  const s9  = env(frame, 2520);
+  const s10 = env(frame, 2800);
+  const s11 = env(frame, 3080);
+  const s12 = env(frame, 3360);
+  const s13 = env(frame, 3640);
+  const s14 = env(frame, 3920);
+  const s15 = env(frame, 4200);
+  const s16 = env(frame, 4480);
+  // Fire: starts at 4760, ends at 5180 (420 frames — outro at +300, fade at +360–420)
+  const s17 = interpolate(frame, [4760, 4780, 5160, 5180], [0, 1, 1, 0], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
 
-  // ── Photosensitivity warning — fades in at start, gone by frame 120 ────
+  // Photosensitivity warning — visible for first ~4 s
   const warningOpacity = interpolate(frame, [0, 15, 90, 120], [0, 1, 1, 0], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
@@ -99,46 +129,62 @@ export const AmigaDemo: React.FC<AmigaDemoProps> = ({ includeAudio = false }) =>
           imageRendering: "pixelated",
         }}
       >
-        {/* ── Scene 1: Copper Bars (0–900) ── */}
-        <div style={{ ...LAYER_BASE, opacity: scene1 }}>
-          <CopperBars {...fp} />
-        </div>
+        {/* Scene 0: CopperBars (0–300) */}
+        <div style={{ ...LAYER_BASE, opacity: s0 }}><CopperBars {...fp} /></div>
 
-        {/* ── Scene 2: Starfield (750–1800) ── */}
-        <div style={{ ...LAYER_BASE, opacity: scene2 }}>
-          <Starfield {...fp} />
-        </div>
+        {/* Scene 1: Rotozoom (280–580) */}
+        <div style={{ ...LAYER_BASE, opacity: s1 }}><Rotozoom {...fp} /></div>
 
-        {/* ── Scene 3: Plasma (1650–2700) ── */}
-        <div style={{ ...LAYER_BASE, opacity: scene3 }}>
-          <Plasma {...fp} />
-        </div>
+        {/* Scene 2: Starfield (560–860) */}
+        <div style={{ ...LAYER_BASE, opacity: s2 }}><Starfield {...fp} /></div>
 
-        {/* ── Scene 4: Sine Scroller (2550–3600) ── */}
-        <div style={{ ...LAYER_BASE, opacity: scene4 }}>
-          <SineScroller {...fp} />
-        </div>
+        {/* Scene 3: Twister (840–1140) */}
+        <div style={{ ...LAYER_BASE, opacity: s3 }}><Twister {...fp} /></div>
 
-        {/* ── Scene 5: Boing Ball (3450–4350) + Plasma screen-blended over ── */}
-        <div style={{ ...LAYER_BASE, opacity: scene5 }}>
-          <BoingBall {...fp} />
-          <div style={{ ...LAYER_BASE, opacity: 0.25, mixBlendMode: "screen" }}>
-            <Plasma {...fp} />
-          </div>
-        </div>
+        {/* Scene 4: Plasma (1120–1420) */}
+        <div style={{ ...LAYER_BASE, opacity: s4 }}><Plasma {...fp} /></div>
 
-        {/* ── Scene 6: Wireframe Tunnel (4200–4800) ── */}
-        <div style={{ ...LAYER_BASE, opacity: scene6 }}>
-          <WireframeTunnel {...fp} />
-        </div>
+        {/* Scene 5: VectorBalls (1400–1700) */}
+        <div style={{ ...LAYER_BASE, opacity: s5 }}><VectorBalls {...fp} /></div>
 
-        {/* ── Scene 7: Fire + Outro (4650–5070) ── */}
-        <div style={{ ...LAYER_BASE, opacity: scene7 }}>
-          <Fire {...fp} />
-        </div>
+        {/* Scene 6: SineScroller (1680–1980) */}
+        <div style={{ ...LAYER_BASE, opacity: s6 }}><SineScroller {...fp} /></div>
+
+        {/* Scene 7: DotTunnel (1960–2260) */}
+        <div style={{ ...LAYER_BASE, opacity: s7 }}><DotTunnel {...fp} /></div>
+
+        {/* Scene 8: Lissajous (2240–2540) */}
+        <div style={{ ...LAYER_BASE, opacity: s8 }}><Lissajous {...fp} /></div>
+
+        {/* Scene 9: BoingBall (2520–2820) — no Plasma overlay */}
+        <div style={{ ...LAYER_BASE, opacity: s9 }}><BoingBall {...fp} /></div>
+
+        {/* Scene 10: Metaballs (2800–3100) */}
+        <div style={{ ...LAYER_BASE, opacity: s10 }}><Metaballs {...fp} /></div>
+
+        {/* Scene 11: EqBars (3080–3380) */}
+        <div style={{ ...LAYER_BASE, opacity: s11 }}><EqBars {...fp} /></div>
+
+        {/* Scene 12: WireframeTunnel (3360–3660) */}
+        <div style={{ ...LAYER_BASE, opacity: s12 }}><WireframeTunnel {...fp} /></div>
+
+        {/* Scene 13: HexGrid (3640–3940) */}
+        <div style={{ ...LAYER_BASE, opacity: s13 }}><HexGrid {...fp} /></div>
+
+        {/* Scene 14: MatrixRain (3920–4220) */}
+        <div style={{ ...LAYER_BASE, opacity: s14 }}><MatrixRain {...fp} /></div>
+
+        {/* Scene 15: RotoShapes (4200–4500) */}
+        <div style={{ ...LAYER_BASE, opacity: s15 }}><RotoShapes {...fp} /></div>
+
+        {/* Scene 16: Glenz (4480–4780) */}
+        <div style={{ ...LAYER_BASE, opacity: s16 }}><Glenz {...fp} /></div>
+
+        {/* Scene 17: Fire (4760–5070) */}
+        <div style={{ ...LAYER_BASE, opacity: s17 }}><Fire {...fp} /></div>
       </div>
 
-      {/* ── Photosensitivity warning (~4 s at the very start) ── */}
+      {/* Photosensitivity warning (~4 s at the very start) */}
       {frame < 125 && (
         <AbsoluteFill
           style={{

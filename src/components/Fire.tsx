@@ -6,7 +6,7 @@ const VIRTUAL_W = 320;
 const VIRTUAL_H = 256;
 
 // Default absolute offsets when rendered as part of the full composition
-const SCENE_START = 4650;
+const SCENE_START = 4760;
 // Relative offsets within the scene (same whether standalone or full)
 const REL_OUTRO_START  = 300;
 const REL_FADE_START   = 360;
