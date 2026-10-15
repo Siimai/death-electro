@@ -80,7 +80,7 @@ interface AmigaDemoProps {
 export const AmigaDemo: React.FC<AmigaDemoProps> = ({ includeAudio = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const freq = useFrequencies(fps, frame);
+  const freq = useFrequencies(fps, frame, includeAudio);
 
   const fp = { bass: freq.bass, mid: freq.mid, treble: freq.treble, volume: freq.volume };
 
