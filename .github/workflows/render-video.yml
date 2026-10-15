@@ -45,7 +45,13 @@ jobs:
           COMPOSITION: ${{ inputs.composition }}
           OUTPUT: ${{ inputs.output }}
           CRF: ${{ inputs.crf }}
-        run: npx remotion render src/index.ts "$COMPOSITION" "out/$(basename "$OUTPUT")" --crf="$CRF"
+        run: |
+          PROPS='{}'
+          if [ ! -f "public/10-Death Electro.mp3" ]; then
+            echo "::warning::public/10-Death Electro.mp3 not found; rendering without audio"
+            PROPS='{"includeAudio":false}'
+          fi
+          npx remotion render src/index.ts "$COMPOSITION" "out/$(basename "$OUTPUT")" --crf="$CRF" --props="$PROPS"
 
       - uses: actions/upload-artifact@v4
         with:

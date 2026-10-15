@@ -62,7 +62,12 @@ function extractScalars(bins: number[]): { bass: number; mid: number; treble: nu
  * Called once in AmigaDemo.tsx. Loads the track audio data and returns
  * per-frame frequency scalars. Returns all-zero while loading.
  */
-export function useFrequencies(fps: number, frame: number): FreqData {
+export function useFrequencies(fps: number, frame: number, enabled = true): FreqData {
+  // `enabled` is constant for a given render, so the hook order is stable.
+  return enabled ? useAudioFrequencies(fps, frame) : ZERO;
+}
+
+function useAudioFrequencies(fps: number, frame: number): FreqData {
   const audioData = useAudioData(AUDIO_SRC);
   if (!audioData) return ZERO;
 
